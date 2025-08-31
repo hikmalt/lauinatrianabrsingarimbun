@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy 20th Birthday, Yana!</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;600&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1a1a2e;
+            color: #e0e0e0;
+            overflow-x: hidden;
+            transition: all 0.5s ease-in-out;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Playfair Display', serif;
+        }
+
+        .cursive-text {
+            font-family: 'Dancing Script', cursive;
+        }
+
+        /* --- Animations --- */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+        @keyframes popIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            80% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-8px); }
+            20%, 40%, 60%, 80% { transform: translateX(8px); }
+        }
+        @keyframes pulse-btn {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .animate-fadeIn { animation: fadeIn 1.5s ease-in-out forwards; }
+        .animate-fadeOut { animation: fadeOut 1s ease-in-out forwards; }
+        .animate-popIn { animation: popIn 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards; }
+        .interactive-shake:hover { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
+        .btn-pulse { animation: pulse-btn 1.5s infinite; }
+
+        /* --- Sections Visibility --- */
+        .section {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+            padding: 2rem;
+            display: none; /* Initially hidden */
+            position: relative;
+        }
+        .section.active {
+            opacity: 1;
+            display: flex;
+        }
+        .section.active:not(#memories-section) {
+            transition: opacity 1s ease-in-out, transform 1s ease-in-out;
+        }
+
+        /* --- Countdown --- */
+        #countdown-section {
+            background: linear-gradient(135deg, #16222A 0%, #3A6073 100%);
+        }
+        #countdown-number {
+            font-size: 15rem;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+
+        /* --- Party Section --- */
+        #party-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+        }
+        #party-content {
+            z-index: 20;
+            position: relative;
+            text-align: center;
+        }
+        
+        /* --- Timeline --- */
+        .timeline-container {
+            position: relative;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 0;
+        }
+        .timeline-container::after {
+            content: '';
+            position: absolute;
+            width: 4px;
+            background-color: #fca5a5;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            margin-left: -2px;
+            border-radius: 2px;
+        }
+        .timeline-item {
+            padding: 10px 40px;
+            position: relative;
+            width: 50%;
+        }
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            right: -12.5px;
+            background-color: #1a1a2e;
+            border: 4px solid #fca5a5;
+            top: 25px;
+            border-radius: 50%;
+            z-index: 1;
+        }
+        .timeline-left {
+            left: 0;
+        }
+        .timeline-right {
+            left: 50%;
+        }
+        .timeline-right::after {
+            left: -12.5px;
+        }
+        .timeline-content {
+            padding: 20px;
+            background-color: #2c2c54;
+            position: relative;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
+        }
+        .timeline-content:hover {
+            transform: translateY(-5px);
+        }
+
+        /* Responsive timeline */
+        @media screen and (max-width: 768px) {
+            .timeline-container::after {
+                left: 31px;
+            }
+            .timeline-item {
+                width: 100%;
+                padding-left: 70px;
+                padding-right: 25px;
+            }
+            .timeline-item::after {
+                left: 18px;
+            }
+            .timeline-right {
+                left: 0%;
+            }
+        }
+    </style>
+</head>
+<body class="bg-[#1a1a2e]">
+
+    <audio id="birthdayAudio" preload="auto">
+        <source src="/musics/HappyBirthdayCrowd.mp3" type="audio/mpeg">
+    </audio>
+    
+    <audio id="thousandYearsAudio" preload="auto" loop>
+        <source src="/musics/A Thousand Years - Christina Perri.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- SECTION 1: Countdown -->
+    <section id="countdown-section" class="section active">
+        <div id="countdown-number" class="animate-popIn">10</div>
+    </section>
+
+    <!-- SECTION 2: Party & Cake -->
+    <section id="party-section" class="section">
+        <canvas id="party-canvas"></canvas>
+        <div id="party-content" class="flex flex-col items-center justify-center gap-8">
+            <img id="cake-img" src="https://i.ibb.co/6yFfM60/birthday-cake-candles.png" alt="Birthday Cake" class="w-64 md:w-96 h-auto opacity-0 -translate-y-10 transition-all duration-1000" style="filter: drop-shadow(0 0 25px #f87171);">
+            <div id="greeting-text" class="opacity-0 transition-opacity duration-1000">
+                <h1 class="text-4xl md:text-6xl font-bold text-red-300">Happy Birthday Yana!</h1>
+                <p class="text-2xl md:text-4xl cursive-text text-white mt-2">yang ke-20 tahun!</p>
+            </div>
+            <div id="gift-prompt" class="opacity-0 transition-opacity duration-1000 mt-4">
+                 <p class="text-lg text-gray-300 animate-pulse">Please tap the gift box below!</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 3: First Gift -->
+    <section id="gift-section" class="section">
+        <div class="text-center">
+            <h2 class="text-3xl md:text-5xl mb-8">A little surprise for you...</h2>
+            <div id="gift-box" class="cursor-pointer interactive-shake transition-transform transform hover:scale-105">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-48 w-48 md:h-64 md:w-64 text-red-300" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v1h-2.5a1 1 0 00-1-1h-3a1 1 0 00-1 1H5V4zM5 7v9a2 2 0 002 2h6a2 2 0 002-2V7H5zm5-3a1 1 0 000 2h.5a1 1 0 100-2H10z" />
+                </svg>
+            </div>
+        </div>
+    </section>
+      <!-- Gift Overlay -->
+    <div id="gift-overlay" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 hidden animate-fadeIn">
+        <img id="overlay-image" src="https://i.pinimg.com/originals/d5/82/1c/d5821cc62a23534af88c924f7872b848.jpg" alt="Gift" class="max-w-full max-h-full p-4 rounded-lg animate-popIn">
+    </div>
+
+    <!-- SECTION 4: Memories Timeline -->
+    <section id="memories-section" class="section flex-col !justify-start pt-24">
+        <h2 class="text-4xl md:text-6xl cursive-text mb-12 text-center text-red-300">Throwback Memories</h2>
+        <div id="timeline" class="timeline-container">
+            <!-- Timeline items will be injected here by JavaScript -->
+        </div>
+        <button id="skip-btn" class="mt-8 px-6 py-3 bg-red-500 hover:bg-red-600 text-white font-bold rounded-full shadow-lg transition-transform transform hover:scale-105 btn-pulse">
+            Skip to Letter & Confess
+        </button>
+    </section>
+    
+    <!-- SECTION 5: Letter & Confession -->
+    <section id="letter-section" class="section">
+        <div class="text-center">
+            <h2 class="text-3xl md:text-5xl mb-8">One last thing...</h2>
+            <div id="letter-icon" class="cursor-pointer interactive-shake transition-transform transform hover:scale-105">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-48 w-48 md:h-64 md:w-64 text-red-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Confession Modal -->
+    <div id="confession-modal" class="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 hidden">
+        <div class="bg-[#2c2c54] p-8 rounded-lg shadow-2xl text-center max-w-sm mx-auto animate-popIn">
+            <p class="text-2xl mb-6 cursive-text text-white">"Hi Lauina, actually I have a crush on you."</p>
+            <div class="flex justify-center gap-4">
+                <button id="accept-btn" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-lg transition-colors">Accept</button>
+                <button id="reject-btn" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-6 rounded-lg transition-colors">Reject</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rejection Toast -->
+    <div id="rejection-toast" class="fixed bottom-10 right-10 bg-gray-800 text-white py-2 px-4 rounded-lg shadow-lg hidden animate-fadeIn">
+        Alright. Thank you for the answer.
+    </div>
+
+    <!-- Auto Scroll Toggle Button -->
+    <button id="autoscroll-btn" class="fixed bottom-5 right-5 bg-red-400 text-white px-4 py-2 rounded-full shadow-lg z-50 hidden transition-opacity hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-red-500 btn-pulse">
+        Lanjutkan Auto Scroll
+    </button>
+
+
+    <script>
+    // --- DOM Elements ---
+    const countdownSection = document.getElementById('countdown-section');
+    const countdownNumber = document.getElementById('countdown-number');
+    const partySection = document.getElementById('party-section');
+    const cakeImg = document.getElementById('cake-img');
+    const greetingText = document.getElementById('greeting-text');
+    const giftPrompt = document.getElementById('gift-prompt');
+    const giftSection = document.getElementById('gift-section');
+    const giftBox = document.getElementById('gift-box');
+    const giftOverlay = document.getElementById('gift-overlay');
+    const memoriesSection = document.getElementById('memories-section');
+    const timelineContainer = document.getElementById('timeline');
+    const skipBtn = document.getElementById('skip-btn');
+    const letterSection = document.getElementById('letter-section');
+    const letterIcon = document.getElementById('letter-icon');
+    const confessionModal = document.getElementById('confession-modal');
+    const acceptBtn = document.getElementById('accept-btn');
+    const rejectBtn = document.getElementById('reject-btn');
+    const rejectionToast = document.getElementById('rejection-toast');
+    const autoscrollBtn = document.getElementById('autoscroll-btn');
+    
+    // Audio
+    const birthdayAudio = document.getElementById('birthdayAudio');
+    const thousandYearsAudio = document.getElementById('thousandYearsAudio');
+
+    // --- Media Data (Manual Listing) ---
+    // PENTING: Untuk menampilkan foto dan video, Anda harus meletakkan file-file tersebut di dalam folder yang sama dengan file index.html ini, dengan struktur folder yang sudah Anda tentukan.
+    // Contoh: 'bornbaby/1.png'
+    const mediaFiles = [
+        // bornbaby
+        { category: 'Born Baby', type: 'photo', src: 'bornbaby/1.png' },
+
+        // college/bukber2025
+        { category: 'College - Bukber 2025', type: 'photo', src: 'college/bukber2025/1.png' },
+        { category: 'College - Bukber 2025', type: 'photo', src: 'college/bukber2025/2.png' },
+        { category: 'College - Bukber 2025', type: 'photo', src: 'college/bukber2025/3.png' },
+        { category: 'College - Bukber 2025', type: 'photo', src: 'college/bukber2025/4.png' },
+        { category: 'College - Bukber 2025', type: 'photo', src: 'college/bukber2025/5.png' },
+        { category: 'College - Bukber 2025', type: 'photo', src: 'college/bukber2025/6.png' },
+        { category: 'College - Bukber 2025', type: 'photo', src: 'college/bukber2025/7.png' },
+        { category: 'College - Bukber 2025', type: 'photo', src: 'college/bukber2025/8.png' },
+        { category: 'College - Bukber 2025', type: 'photo', src: 'college/bukber2025/9.png' },
+        { category: 'College - Bukber 2025', type: 'photo', src: 'college/bukber2025/10.png' },
+        { category: 'College - Bukber 2025', type: 'photo', src: 'college/bukber2025/11.png' },
+        { category: 'College - Bukber 2025', type: 'photo', src: 'college/bukber2025/12.png' },
+        { category: 'College - Bukber 2025', type: 'photo', src: 'college/bukber2025/13.png' },
+        
+        // college/hmpsce
+        { category: 'College - HMPSCE', type: 'photo', src: 'college/hmpsce/1.png' },
+        { category: 'College - HMPSCE', type: 'photo', src: 'college/hmpsce/2.png' },
+        { category: 'College - HMPSCE', type: 'photo', src: 'college/hmpsce/3.png' },
+        { category: 'College - HMPSCE', type: 'photo', src: 'college/hmpsce/4.png' },
+        { category: 'College - HMPSCE', type: 'photo', src: 'college/hmpsce/5.png' },
+        { category: 'College - HMPSCE', type: 'photo', src: 'college/hmpsce/6.png' },
+        { category: 'College - HMPSCE', type: 'photo', src: 'college/hmpsce/7.png' },
+        { category: 'College - HMPSCE', type: 'photo', src: 'college/hmpsce/8.png' },
+        { category: 'College - HMPSCE', type: 'photo', src: 'college/hmpsce/9.png' },
+        { category: 'College - HMPSCE', type: 'photo', src: 'college/hmpsce/10.png' },
+        { category: 'College - HMPSCE', type: 'photo', src: 'college/hmpsce/11.png' },
+        { category: 'College - HMPSCE', type: 'photo', src: 'college/hmpsce/12.png' },
+        { category: 'College - HMPSCE', type: 'photo', src: 'college/hmpsce/13.png' },
+        { category: 'College - HMPSCE', type: 'photo', src: 'college/hmpsce/14.png' },
+        
+        // college/outboundce
+        { category: 'College - Outbound CE', type: 'photo', src: 'college/outboundce/1.png' },
+        { category: 'College - Outbound CE', type: 'photo', src: 'college/outboundce/2.png' },
+        { category: 'College - Outbound CE', type: 'photo', src: 'college/outboundce/3.png' },
+            
+        // college/random
+        { category: 'College - Random', type: 'photo', src: 'college/random/1.png' },
+        { category: 'College - Random', type: 'photo', src: 'college/random/2.png' },
+        { category: 'College - Random', type: 'photo', src: 'college/random/3.png' },
+        { category: 'College - Random', type: 'photo', src: 'college/random/4.png' },
+        { category: 'College - Random', type: 'photo', src: 'college/random/5.png' },
+        { category: 'College - Random', type: 'photo', src: 'college/random/6.png' },
+        { category: 'College - Random', type: 'photo', src: 'college/random/7.png' },
+        { category: 'College - Random', type: 'photo', src: 'college/random/8.png' },
+        { category: 'College - Random', type: 'photo', src: 'college/random/9.png' },
+        { category: 'College - Random', type: 'photo', src: 'college/random/10.png' },
+
+        // college/rindam
+        { category: 'College - Rindam', type: 'photo', src: 'college/rindam/1.png' },
+        { category: 'College - Rindam', type: 'photo', src: 'college/rindam/2.png' },
+        { category: 'College - Rindam', type: 'photo', src: 'college/rindam/3.png' },
+        
+        // college/semester1
+        { category: 'College - Semester 1', type: 'photo', src: 'college/semester1/1.png' },
+        { category: 'College - Semester 1', type: 'photo', src: 'college/semester1/2.png' },
+        { category: 'College - Semester 1', type: 'photo', src: 'college/semester1/3.png' },
+        { category: 'College - Semester 1', type: 'photo', src: 'college/semester1/4.png' },
+        { category: 'College - Semester 1', type: 'photo', src: 'college/semester1/5.png' },
+        { category: 'College - Semester 1', type: 'photo', src: 'college/semester1/6.png' },
+        { category: 'College - Semester 1', type: 'photo', src: 'college/semester1/7.png' },
+        { category: 'College - Semester 1', type: 'photo', src: 'college/semester1/8.png' },
+        { category: 'College - Semester 1', type: 'photo', src: 'college/semester1/9.png' },
+        { category: 'College - Semester 1', type: 'photo', src: 'college/semester1/10.png' },
+        { category: 'College - Semester 1', type: 'photo', src: 'college/semester1/11.png' },
+        { category: 'College - Semester 1', type: 'photo', src: 'college/semester1/12.png' },
+        { category: 'College - Semester 1', type: 'photo', src: 'college/semester1/13.png' },
+        { category: 'College - Semester 1', type: 'photo', src: 'college/semester1/14.png' },
+        { category: 'College - Semester 1', type: 'photo', src: 'college/semester1/15.png' },
+        
+        // college/semester2
+        { category: 'College - Semester 2', type: 'photo', src: 'college/semester2/1.png' },
+        
+        // college/semester3
+        { category: 'College - Semester 3', type: 'photo', src: 'college/semester3/1.png' },
+        { category: 'College - Semester 3', type: 'photo', src: 'college/semester3/2.png' },
+        { category: 'College - Semester 3', type: 'photo', src: 'college/semester3/3.png' },
+        { category: 'College - Semester 3', type: 'photo', src: 'college/semester3/4.png' },
+        { category: 'College - Semester 3', type: 'photo', src: 'college/semester3/5.png' },
+        
+        // college/semester4
+        { category: 'College - Semester 4', type: 'photo', src: 'college/semester4/1.png' },
+        { category: 'College - Semester 4', type: 'photo', src: 'college/semester4/2.png' },
+        { category: 'College - Semester 4', type: 'photo', src: 'college/semester4/3.png' },
+        { category: 'College - Semester 4', type: 'photo', src: 'college/semester4/4.png' },
+        { category: 'College - Semester 4', type: 'photo', src: 'college/semester4/5.png' },
+        { category: 'College - Semester 4', type: 'photo', src: 'college/semester4/6.png' },
+        { category: 'College - Semester 4', type: 'photo', src: 'college/semester4/7.png' },
+        { category: 'College - Semester 4', type: 'photo', src: 'college/semester4/8.png' },
+        { category: 'College - Semester 4', type: 'photo', src: 'college/semester4/9.png' },
+        { category: 'College - Semester 4', type: 'photo', src: 'college/semester4/10.png' },
+        { category: 'College - Semester 4', type: 'photo', src: 'college/semester4/11.png' },
+        { category: 'College - Semester 4', type: 'photo', src: 'college/semester4/12.png' },
+        { category: 'College - Semester 4', type: 'photo', src: 'college/semester4/13.png' },
+        { category: 'College - Semester 4', type: 'photo', src: 'college/semester4/14.png' },
+        { category: 'College - Semester 4', type: 'photo', src: 'college/semester4/15.png' },
+        { category: 'College - Semester 4', type: 'photo', src: 'college/semester4/16.png' },
+        { category: 'College - Semester 4', type: 'photo', src: 'college/semester4/17.png' },
+        { category: 'College - Semester 4', type: 'photo', src: 'college/semester4/18.png' },
+        { category: 'College - Semester 4', type: 'photo', src: 'college/semester4/19.png' },
+        { category: 'College - Semester 4', type: 'photo', src: 'college/semester4/20.png' },
+        { category: 'College - Semester 4', type: 'photo', src: 'college/semester4/21.png' },
+        
+        // college/taskvideos
+        { category: 'College - Task Videos', type: 'video', src: 'college/taskvideos/1.mp4' },
+        { category: 'College - Task Videos', type: 'video', src: 'college/taskvideos/2.mp4' },
+        { category: 'College - Task Videos', type: 'video', src: 'college/taskvideos/3.mp4' },
+        { category: 'College - Task Videos', type: 'video', src: 'college/taskvideos/4.mp4' },
+        { category: 'College - Task Videos', type: 'video', src: 'college/taskvideos/5.mp4' },
+        { category: 'College - Task Videos', type: 'video', src: 'college/taskvideos/6.mp4' },
+        { category: 'College - Task Videos', type: 'video', src: 'college/taskvideos/7.mp4' },
+        { category: 'College - Task Videos', type: 'video', src: 'college/taskvideos/8.mp4' },
+        { category: 'College - Task Videos', type: 'video', src: 'college/taskvideos/9.mp4' },
+        
+        // kid
+        { category: 'Kid', type: 'video', src: 'kid/1.mp4' },
+        { category: 'Kid', type: 'photo', src: 'kid/1.png' },
+        { category: 'Kid', type: 'photo', src: 'kid/2.png' },
+        
+        // martialarts
+        { category: 'Martial Arts', type: 'photo', src: 'martialarts/1.png' },
+        { category: 'Martial Arts', type: 'photo', src: 'martialarts/2.png' },
+        
+        // selfies
+        { category: 'Selfies', type: 'photo', src: 'selfies/1.png' },
+        { category: 'Selfies', type: 'photo', src: 'selfies/2.png' },
+        { category: 'Selfies', type: 'photo', src: 'selfies/3.png' },
+        { category: 'Selfies', type: 'photo', src: 'selfies/4.png' },
+        { category: 'Selfies', type: 'photo', src: 'selfies/5.png' },
+        { category: 'Selfies', type: 'photo', src: 'selfies/6.png' },
+        { category: 'Selfies', type: 'photo', src: 'selfies/7.png' },
+        { category: 'Selfies', type: 'photo', src: 'selfies/8.png' },
+        { category: 'Selfies', type: 'photo', src: 'selfies/9.png' },
+        
+        // smp
+        { category: 'SMP', type: 'video', src: 'smp/1.mp4' }
+    ];
+
+    // Shuffle media for a random timeline
+    mediaFiles.sort(() => Math.random() - 0.5);
+
+    // --- Timeline Generation ---
+    function generateTimeline() {
+        timelineContainer.innerHTML = '';
+        mediaFiles.forEach((media, index) => {
+            const side = index % 2 === 0 ? 'left' : 'right';
+            const itemHTML = `
+                <div class="timeline-item timeline-${side}">
+                    <div class="timeline-content">
+                        <h3 class="font-bold text-red-300 text-lg mb-2">${media.category}</h3>
+                        ${media.type === 'video' 
+                            ? `<video controls class="w-full rounded-md" playsinline muted autoplay loop><source src="${media.src}" type="video/mp4">Your browser does not support the video tag.</video>`
+                            : `<img src="${media.src}" alt="${media.category}" class="w-full h-auto object-cover rounded-md" onerror="this.onerror=null;this.src='https://placehold.co/600x800/403D58/FFF?text=Image+Not+Found';">`
+                        }
+                    </div>
+                </div>
+            `;
+            timelineContainer.innerHTML += itemHTML;
+        });
+    }
+
+    // --- Auto Scroll Logic ---
+    let isAutoScrollEnabled = true;
+    let autoScrollInterval = null;
+    const scrollStep = 10; // Pixels per interval, faster than previous.
+
+    function startTimelineAutoScroll() {
+        if (!isAutoScrollEnabled) return;
+        
+        const scrollableElement = document.documentElement;
+        
+        // Clear any existing interval to prevent duplicates
+        if (autoScrollInterval) clearInterval(autoScrollInterval);
+
+        autoScrollInterval = setInterval(() => {
+            const timelineBottom = timelineContainer.getBoundingClientRect().bottom + window.scrollY;
+            const viewportBottom = window.innerHeight + window.scrollY;
+
+            // Check if we are near the end of the timeline
+            if (timelineBottom <= viewportBottom + 100) {
+                // If so, transition to the next section
+                clearInterval(autoScrollInterval);
+                showSection(letterSection);
+                return;
+            }
+            
+            // Scroll down
+            window.scrollBy({
+                top: scrollStep,
+                behavior: 'smooth'
+            });
+        }, 30); // Every 30ms for faster scroll
+    }
+
+    function stopAutoScroll() {
+        if (isAutoScrollEnabled) {
+            isAutoScrollEnabled = false;
+            clearInterval(autoScrollInterval);
+            autoscrollBtn.classList.remove('hidden');
+        }
+    }
+
+    function resumeMemoriesJourney() {
+        isAutoScrollEnabled = true;
+        autoscrollBtn.classList.add('hidden');
+        
+        // Ensure we are on the memories section before starting scroll
+        if (document.querySelector('.section.active').id !== 'memories-section') {
+            showSection(memoriesSection);
+            if(thousandYearsAudio.paused) {
+                 thousandYearsAudio.currentTime = 10; // Start at 10 seconds
+                 thousandYearsAudio.play().catch(e => console.error("Memories audio play failed:", e));
+            }
+        }
+        
+        startTimelineAutoScroll();
+    }
+    
+    // Listen for manual user scrolls to stop auto-scroll
+    window.addEventListener('wheel', stopAutoScroll, { passive: true });
+    window.addEventListener('touchmove', stopAutoScroll, { passive: true });
+
+    autoscrollBtn.addEventListener('click', resumeMemoriesJourney);
+
+    // Skip button
+    skipBtn.addEventListener('click', () => {
+        isAutoScrollEnabled = false;
+        clearInterval(autoScrollInterval);
+        pauseAllVideos();
+        showSection(letterSection);
+    });
+
+    // Intersection Observer to play/pause videos
+    const videoObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                // Video is in view, play it
+                entry.target.play().catch(e => console.error("Video play failed:", e));
+            } else {
+                // Video is out of view, pause it
+                entry.target.pause();
+            }
+        });
+    }, { threshold: 0.5 }); // Adjust threshold as needed, 0.5 means 50% of the video must be visible
+
+    function pauseAllVideos() {
+        const allVideos = document.querySelectorAll('video');
+        allVideos.forEach(video => {
+            video.pause();
+        });
+    }
+
+    // --- Page Logic ---
+
+    // Function to switch between sections smoothly
+    function showSection(sectionElement) {
+        document.querySelectorAll('.section').forEach(sec => {
+            sec.classList.remove('active');
+        });
+        sectionElement.classList.add('active');
+        sectionElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    
+    // 1. Countdown
+    function startCountdown() {
+        let count = 10;
+        countdownNumber.textContent = count;
+        const interval = setInterval(() => {
+            count--;
+            if (count > 0) {
+                countdownNumber.textContent = count;
+                countdownNumber.classList.remove('animate-popIn');
+                void countdownNumber.offsetWidth; // Trigger reflow
+                countdownNumber.classList.add('animate-popIn');
+            } else {
+                clearInterval(interval);
+                countdownSection.classList.add('animate-fadeOut');
+                setTimeout(startParty, 1000);
+            }
+        }, 1000);
+    }
+    
+    // 2. Party Time
+    function startParty() {
+        countdownSection.style.display = 'none';
+        showSection(partySection);
+
+        // Ribbon/Confetti effect
+        const canvas = document.getElementById('party-canvas');
+        const myConfetti = confetti.create(canvas, { resize: true, useWorker: true });
+        const duration = 10 * 1000;
+        const end = Date.now() + duration;
+
+        (function frame() {
+            myConfetti({ particleCount: 2, angle: 60, spread: 55, origin: { x: 0 } });
+            myConfetti({ particleCount: 2, angle: 120, spread: 55, origin: { x: 1 } });
+            if (Date.now() < end) { requestAnimationFrame(frame); }
+        }());
+
+        setTimeout(() => {
+            cakeImg.style.opacity = '1';
+            cakeImg.style.transform = 'translateY(0)';
+            
+            setTimeout(() => {
+                cakeImg.src = 'https://i.ibb.co/L5hY59c/birthday-cake-no-candles.png';
+                
+                setTimeout(() => {
+                    greetingText.style.opacity = '1';
+                    birthdayAudio.play().catch(e => console.error("Audio play failed:", e));
+
+                    setTimeout(() => {
+                        giftPrompt.style.opacity = '1';
+                        if (isAutoScrollEnabled) {
+                             setTimeout(() => showSection(giftSection), 3000);
+                        }
+                    }, 1500);
+                }, 500);
+            }, 1500);
+        }, 1000);
+    }
+    
+    // 3. Gift Box Interaction
+    giftBox.addEventListener('click', () => {
+        giftOverlay.classList.remove('hidden');
+        setTimeout(() => {
+            giftOverlay.classList.add('hidden');
+            startMemories();
+        }, 5000);
+    });
+
+    // 4. Memories Section
+    function startMemories() {
+        showSection(memoriesSection);
+        birthdayAudio.pause();
+        thousandYearsAudio.currentTime = 10; // Start at 10 seconds
+        thousandYearsAudio.play().catch(e => console.error("Memories audio play failed:", e));
+
+        // Get all video elements and observe them
+        const allVideos = document.querySelectorAll('video');
+        allVideos.forEach(video => {
+            videoObserver.observe(video);
+        });
+        
+        // Start the continuous auto-scroll for the timeline
+        startTimelineAutoScroll();
+    }
+
+    // 5. Letter Interaction
+    letterIcon.addEventListener('click', () => {
+        pauseAllVideos();
+        confessionModal.classList.remove('hidden');
+    });
+
+    acceptBtn.addEventListener('click', () => {
+        window.open('https://wa.me/628956294761997?text=iya%20mau%20brok', '_blank');
+        confessionModal.classList.add('hidden');
+        reverseMemories();
+    });
+
+    rejectBtn.addEventListener('click', () => {
+        confessionModal.classList.add('hidden');
+        rejectionToast.classList.remove('hidden');
+        setTimeout(() => {
+            rejectionToast.classList.add('hidden');
+            reverseMemories();
+        }, 3000);
+    });
+    
+    // 6. Reverse Memories Scroll
+    function reverseMemories() {
+        showSection(memoriesSection);
+        memoriesSection.scrollIntoView({ behavior: "instant", block: "end" });
+        setTimeout(() => {
+            memoriesSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 500);
+    }
+    
+    // --- Initial Load ---
+    window.onload = () => {
+        generateTimeline();
+        startCountdown();
+    };
+    </script>
+</body>
+</html>
